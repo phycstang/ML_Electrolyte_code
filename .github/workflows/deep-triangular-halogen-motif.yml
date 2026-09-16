@@ -35,11 +35,20 @@ jobs:
             --cif-root data_cifs \
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir triangular_halogen_motif_discovery/results
-      - name: Print result summary
+      - name: Run post-hoc channel and topology validation
+        run: |
+          python triangular_halogen_motif_discovery/posthoc_validation.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --outdir triangular_halogen_motif_discovery/results
+      - name: Print result summaries
         if: always()
         run: |
           if [ -f triangular_halogen_motif_discovery/results/RESULTS.md ]; then
             cat triangular_halogen_motif_discovery/results/RESULTS.md
+          fi
+          if [ -f triangular_halogen_motif_discovery/results/POSTHOC_VALIDATION.md ]; then
+            cat triangular_halogen_motif_discovery/results/POSTHOC_VALIDATION.md
           fi
       - name: Upload deep-study results
         if: always()
