@@ -1,0 +1,4 @@
+test,positive_success,positive_fail,background_success,background_fail,odds_ratio,p_one_sided
+known positives: strict exact-6 vs background,5,2,412,299,1.8143203883495145,0.3780206680131173
+known positives: fallback sixfold vs background,6,1,463,248,3.2138228941684663,0.23799483679543168
+core blind 3: strict exact-6 vs background (retrospective),3,0,412,299,inf,0.19576306419632006

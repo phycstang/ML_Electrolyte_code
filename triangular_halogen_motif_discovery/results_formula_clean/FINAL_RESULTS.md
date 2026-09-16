@@ -33,7 +33,7 @@ This is the paper-facing rerun. **All polymorphs of every known and blind formul
 | known   | GaF3             | mp-588        |         0.667 |              0.800 |              0.090 | False               | True               |   2 |   1 |   1 |
 | known   | InBr3            | mp-570219     |         1.000 |              0.984 |              0.027 | True                | True               |   1 |   1 |  -1 |
 | known   | TaCl5            | mp-29831      |         1.000 |              0.947 |              0.074 | True                | True               |   1 |   0 |   0 |
-| known   | ZrCl4            | mp-569175     |         1.000 |              0.966 |              0.042 | True                | True               |   1 |  -1 |  -2 |
+| known   | ZrCl4            | mp-569175     |         1.000 |              0.966 |              0.042 | True                | True               |   1 |  -1 |   2 |
 | known   | GaCl3            | mp-30952      |         0.000 |              0.000 |              0.000 | False               | False              |   1 |   1 |   1 |
 | blind   | InI3             | mp-567789     |         1.000 |              0.984 |              0.022 | True                | True               |   1 |   2 |  -2 |
 | blind   | AlBr3            | mp-23288      |         1.000 |              0.964 |              0.065 | True                | True               |   0 |   1 |  -1 |
