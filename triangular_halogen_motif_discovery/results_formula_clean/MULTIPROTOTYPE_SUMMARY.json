@@ -1,0 +1,4 @@
+{
+  "selected_k": 4,
+  "selection_rule": "max pooled mean LOPO percentile across short+baseline and 7 heldouts; tie smaller K"
+}
