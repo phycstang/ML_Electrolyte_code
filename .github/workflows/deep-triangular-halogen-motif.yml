@@ -13,10 +13,14 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: triangular-halogen-motif-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deep-study:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,11 +55,19 @@ jobs:
         run: |
           python triangular_halogen_motif_discovery/statistical_validation.py \
             --results-dir triangular_halogen_motif_discovery/results_formula_clean
+      - name: Run local LOPO, formula-balanced ranking, and empirical null
+        run: |
+          python triangular_halogen_motif_discovery/local_motif_validation.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --outdir triangular_halogen_motif_discovery/results_formula_clean \
+            --n-perm 100
       - name: Print paper-facing results
         run: |
           cat triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md
           cat triangular_halogen_motif_discovery/results_formula_clean/REMATCH_RESULTS.md
           cat triangular_halogen_motif_discovery/results_formula_clean/STATISTICAL_VALIDATION.md
+          cat triangular_halogen_motif_discovery/results_formula_clean/LOCAL_MOTIF_VALIDATION.md
       - name: Commit reproducible text results to research branch
         run: |
           git config user.name 'github-actions[bot]'
@@ -64,7 +76,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No result changes to commit.'
           else
-            git commit -m 'Update formula-clean motif, REMatch, and statistics results [skip ci]'
+            git commit -m 'Update formula-clean motif validation suite [skip ci]'
             git push origin HEAD:analysis-triangular-motif-test
           fi
       - name: Upload result artifact
