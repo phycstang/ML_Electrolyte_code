@@ -28,31 +28,37 @@ jobs:
           mkdir -p data_cifs
           tar -xzf MP_1702_cif_files.tar.gz -C data_cifs
           echo "CIF count: $(find data_cifs -name '*.cif' | wc -l)"
-      - name: Run deep study
+      - name: Run preliminary deep study audit trail
         run: |
           rm -rf triangular_halogen_motif_discovery/results
           python triangular_halogen_motif_discovery/deep_study.py \
             --cif-root data_cifs \
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir triangular_halogen_motif_discovery/results
-      - name: Run post-hoc channel and topology validation
+      - name: Run preliminary post-hoc validation audit trail
         run: |
           python triangular_halogen_motif_discovery/posthoc_validation.py \
             --cif-root data_cifs \
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir triangular_halogen_motif_discovery/results
-      - name: Print result summaries
+      - name: Run formula-clean final analysis
+        run: |
+          rm -rf triangular_halogen_motif_discovery/results_formula_clean
+          python triangular_halogen_motif_discovery/formula_clean_final.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --outdir triangular_halogen_motif_discovery/results_formula_clean
+      - name: Print paper-facing formula-clean results
         if: always()
         run: |
-          if [ -f triangular_halogen_motif_discovery/results/RESULTS.md ]; then
-            cat triangular_halogen_motif_discovery/results/RESULTS.md
+          if [ -f triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md ]; then
+            cat triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md
           fi
-          if [ -f triangular_halogen_motif_discovery/results/POSTHOC_VALIDATION.md ]; then
-            cat triangular_halogen_motif_discovery/results/POSTHOC_VALIDATION.md
-          fi
-      - name: Upload deep-study results
+      - name: Upload all study results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: deep-triangular-halogen-motif-results
-          path: triangular_halogen_motif_discovery/results
+          path: |
+            triangular_halogen_motif_discovery/results
+            triangular_halogen_motif_discovery/results_formula_clean
