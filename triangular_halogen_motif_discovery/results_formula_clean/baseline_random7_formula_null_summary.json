@@ -1,0 +1,12 @@
+{
+  "n_permutations": 100,
+  "seed": 20260916,
+  "observed_discovery_score": 0.7486407344689779,
+  "observed_commonality_min": 0.9218975901603699,
+  "null_discovery_score_mean": 0.5337971736279861,
+  "null_discovery_score_95pct": 0.7730688733804338,
+  "null_commonality_min_mean": 0.8508970740437508,
+  "null_commonality_min_95pct": 0.9528835535049438,
+  "empirical_p_discovery_score": 0.06930693069306931,
+  "empirical_p_commonality_min": 0.2871287128712871
+}
