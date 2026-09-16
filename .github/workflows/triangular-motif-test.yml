@@ -1,0 +1,44 @@
+name: triangular-motif-descriptor-benchmark
+
+on:
+  push:
+    branches:
+      - analysis-triangular-motif-test
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy pandas scipy scikit-learn pymatgen ase dscribe
+      - name: Extract CIF archive
+        run: |
+          mkdir -p data_cifs
+          tar -xzf MP_1702_cif_files.tar.gz -C data_cifs
+          echo "CIF count: $(find data_cifs -name '*.cif' | wc -l)"
+      - name: Run benchmark
+        run: |
+          python analysis/benchmark_anonymous_descriptors.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --outdir results/triangular_motif_descriptor_benchmark
+      - name: Print summary
+        if: always()
+        run: |
+          if [ -f results/triangular_motif_descriptor_benchmark/summary.md ]; then
+            cat results/triangular_motif_descriptor_benchmark/summary.md
+          fi
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: triangular-motif-descriptor-benchmark
+          path: results/triangular_motif_descriptor_benchmark
