@@ -20,7 +20,7 @@ concurrency:
 jobs:
   deep-study:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install numpy pandas scipy scikit-learn pymatgen ase dscribe tabulate
+          python -m pip install numpy pandas scipy scikit-learn pymatgen ase dscribe tabulate matplotlib
       - name: Extract CIF archive
         run: |
           rm -rf data_cifs
@@ -55,27 +55,44 @@ jobs:
         run: |
           python triangular_halogen_motif_discovery/statistical_validation.py \
             --results-dir triangular_halogen_motif_discovery/results_formula_clean
-      - name: Run local LOPO, formula-balanced ranking, and empirical null
+      - name: Run local LOPO, formula-balanced ranking, and 1000-run empirical null
         run: |
           python triangular_halogen_motif_discovery/local_motif_validation.py \
             --cif-root data_cifs \
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir triangular_halogen_motif_discovery/results_formula_clean \
-            --n-perm 100
+            --n-perm 1000
       - name: Run positive-only facility-location multi-prototype validation
         run: |
           python triangular_halogen_motif_discovery/multiprototype_validation.py \
             --cif-root data_cifs \
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir triangular_halogen_motif_discovery/results_formula_clean
+      - name: Run leave-two-positive-out robustness audit
+        run: |
+          python triangular_halogen_motif_discovery/leave_two_out_validation.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --outdir triangular_halogen_motif_discovery/results_formula_clean
+      - name: Export selected prototypes as .vasp structures
+        run: |
+          python triangular_halogen_motif_discovery/export_prototype_structures.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --results-dir triangular_halogen_motif_discovery/results_formula_clean
+      - name: Generate paper-facing synthesis and figures
+        run: |
+          python triangular_halogen_motif_discovery/research_synthesis.py \
+            --results-dir triangular_halogen_motif_discovery/results_formula_clean
       - name: Print paper-facing results
         run: |
           cat triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md
-          cat triangular_halogen_motif_discovery/results_formula_clean/REMATCH_RESULTS.md
           cat triangular_halogen_motif_discovery/results_formula_clean/STATISTICAL_VALIDATION.md
           cat triangular_halogen_motif_discovery/results_formula_clean/LOCAL_MOTIF_VALIDATION.md
           cat triangular_halogen_motif_discovery/results_formula_clean/MULTIPROTOTYPE_VALIDATION.md
-      - name: Commit reproducible text results to research branch
+          cat triangular_halogen_motif_discovery/results_formula_clean/LEAVE_TWO_OUT_VALIDATION.md
+          cat triangular_halogen_motif_discovery/results_formula_clean/RESEARCH_CONCLUSIONS.md
+      - name: Commit complete reproducible results to research branch
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -83,10 +100,10 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No result changes to commit.'
           else
-            git commit -m 'Update complete motif and multi-prototype validation suite [skip ci]'
+            git commit -m 'Freeze static-structure motif validation suite [skip ci]'
             git push origin HEAD:analysis-triangular-motif-test
           fi
-      - name: Upload result artifact
+      - name: Upload complete result artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
