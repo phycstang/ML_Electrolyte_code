@@ -5,9 +5,13 @@ on:
     branches:
       - analysis-triangular-motif-test
     paths:
-      - 'triangular_halogen_motif_discovery/**'
+      - 'triangular_halogen_motif_discovery/*.py'
+      - 'triangular_halogen_motif_discovery/README.md'
       - '.github/workflows/deep-triangular-halogen-motif.yml'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   deep-study:
@@ -15,6 +19,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: analysis-triangular-motif-test
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -28,19 +34,6 @@ jobs:
           mkdir -p data_cifs
           tar -xzf MP_1702_cif_files.tar.gz -C data_cifs
           echo "CIF count: $(find data_cifs -name '*.cif' | wc -l)"
-      - name: Run preliminary deep study audit trail
-        run: |
-          rm -rf triangular_halogen_motif_discovery/results
-          python triangular_halogen_motif_discovery/deep_study.py \
-            --cif-root data_cifs \
-            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
-            --outdir triangular_halogen_motif_discovery/results
-      - name: Run preliminary post-hoc validation audit trail
-        run: |
-          python triangular_halogen_motif_discovery/posthoc_validation.py \
-            --cif-root data_cifs \
-            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
-            --outdir triangular_halogen_motif_discovery/results
       - name: Run formula-clean final analysis
         run: |
           rm -rf triangular_halogen_motif_discovery/results_formula_clean
@@ -48,17 +41,22 @@ jobs:
             --cif-root data_cifs \
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir triangular_halogen_motif_discovery/results_formula_clean
-      - name: Print paper-facing formula-clean results
-        if: always()
+      - name: Print paper-facing results
+        run: cat triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md
+      - name: Commit reproducible text results to research branch
         run: |
-          if [ -f triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md ]; then
-            cat triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add triangular_halogen_motif_discovery/results_formula_clean
+          if git diff --cached --quiet; then
+            echo 'No result changes to commit.'
+          else
+            git commit -m 'Update formula-clean triangular motif results [skip ci]'
+            git push origin HEAD:analysis-triangular-motif-test
           fi
-      - name: Upload all study results
+      - name: Upload result artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: deep-triangular-halogen-motif-results
-          path: |
-            triangular_halogen_motif_discovery/results
-            triangular_halogen_motif_discovery/results_formula_clean
+          name: formula-clean-triangular-halogen-motif-results
+          path: triangular_halogen_motif_discovery/results_formula_clean
