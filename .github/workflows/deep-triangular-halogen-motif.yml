@@ -62,12 +62,19 @@ jobs:
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir triangular_halogen_motif_discovery/results_formula_clean \
             --n-perm 100
+      - name: Run positive-only facility-location multi-prototype validation
+        run: |
+          python triangular_halogen_motif_discovery/multiprototype_validation.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --outdir triangular_halogen_motif_discovery/results_formula_clean
       - name: Print paper-facing results
         run: |
           cat triangular_halogen_motif_discovery/results_formula_clean/FINAL_RESULTS.md
           cat triangular_halogen_motif_discovery/results_formula_clean/REMATCH_RESULTS.md
           cat triangular_halogen_motif_discovery/results_formula_clean/STATISTICAL_VALIDATION.md
           cat triangular_halogen_motif_discovery/results_formula_clean/LOCAL_MOTIF_VALIDATION.md
+          cat triangular_halogen_motif_discovery/results_formula_clean/MULTIPROTOTYPE_VALIDATION.md
       - name: Commit reproducible text results to research branch
         run: |
           git config user.name 'github-actions[bot]'
@@ -76,7 +83,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No result changes to commit.'
           else
-            git commit -m 'Update formula-clean motif validation suite [skip ci]'
+            git commit -m 'Update complete motif and multi-prototype validation suite [skip ci]'
             git push origin HEAD:analysis-triangular-motif-test
           fi
       - name: Upload result artifact
