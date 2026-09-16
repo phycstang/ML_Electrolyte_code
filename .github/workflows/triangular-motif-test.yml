@@ -24,21 +24,30 @@ jobs:
           mkdir -p data_cifs
           tar -xzf MP_1702_cif_files.tar.gz -C data_cifs
           echo "CIF count: $(find data_cifs -name '*.cif' | wc -l)"
-      - name: Run benchmark
+      - name: Run global descriptor benchmark
         run: |
           python analysis/benchmark_anonymous_descriptors.py \
             --cif-root data_cifs \
             --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
             --outdir results/triangular_motif_descriptor_benchmark
-      - name: Print summary
+      - name: Run common local SOAP motif discovery
+        run: |
+          python analysis/discover_common_local_soap.py \
+            --cif-root data_cifs \
+            --metadata 'mp_database/MP_1702_实验记录与结构去重表.csv' \
+            --outdir results/common_local_soap_motifs
+      - name: Print summaries
         if: always()
         run: |
           if [ -f results/triangular_motif_descriptor_benchmark/summary.md ]; then
             cat results/triangular_motif_descriptor_benchmark/summary.md
+          fi
+          if [ -f results/common_local_soap_motifs/summary_local_motifs.md ]; then
+            cat results/common_local_soap_motifs/summary_local_motifs.md
           fi
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: triangular-motif-descriptor-benchmark
-          path: results/triangular_motif_descriptor_benchmark
+          path: results
